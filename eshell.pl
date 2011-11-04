@@ -103,7 +103,6 @@ Would use the "buildserver" Config  Environment Variables
   
 =cut
 
-
 ################################################################################
 #
 # Globals/Constants/ENV Setup
@@ -146,7 +145,6 @@ my %g_SkipProcessingVariables = (
                                   'ESHELL_COMMAND_LINE' => 1, 
                                 );
 
-
 ################################################################################
 my $returnValue = main();
 if ( $returnValue )
@@ -163,12 +161,10 @@ sub main
   #
   AutomaticUpdate();
   
-
   #
   # set up some general settings
   #
   SetupNewEnv();  
-  
   
   #
   # parse commandline options
@@ -178,7 +174,6 @@ sub main
     return 1;
   }
 
-  
   #
   # parse the settings file(s)
   #  
@@ -189,12 +184,10 @@ sub main
     return 0;
   }
   
-  
   #
   # process the new environment variables and set %ENV
   #
   ProcessNewEnv();
-  
   
   #
   # if we are testing, output the environment that would be set and exit
@@ -228,7 +221,6 @@ sub main
 
   print "EShell [Version " . VERSION . "]\n\n";
 
-
   #
   # Run/Exec the command or start the command prompt
   #
@@ -248,7 +240,6 @@ sub main
     # we try to find the shell in the path and exec it
     # exec causes this perl script to exit and lets the shell take control
     # of input.  we do this so ctrl-c works correctly when trying to break
-
 
     # if they didn't define a shell using the command line, look in the project
     # and user settings...
@@ -300,7 +291,6 @@ sub main
 }
 
 exit 0;
-
 
 ################################################################################
 sub PrintUsage
@@ -820,9 +810,10 @@ sub ProcessPath
 sub ProcessEnvVar
 {  
   my $varName = shift or return undef;
-
   my $varValue = $g_NewEnv{ $varName };
   
+  #print( " ProcessEnvVar (pre): $varName = $varValue\n" );
+
   if ( !defined $varValue )
   {
     $varValue = $g_BackupEnv{ $varName };
@@ -848,6 +839,17 @@ sub ProcessEnvVar
       my $replaceVarName = $1;
       my $replaceVarValue = '';
       
+      my $originalVarName = undef;
+      my $fixupSource = undef;
+      my $fixupTarget = undef;
+      if ( $replaceVarName =~ /(.*?)\:(.*?)\=(.*)/ )
+      {
+        $originalVarName = $replaceVarName;
+        $replaceVarName = $1;
+        $fixupSource = $2;
+        $fixupTarget = $3;
+      }
+
       if ( $varName eq $replaceVarName )
       {
         if ( defined $g_BackupEnv{ $varName } )
@@ -868,7 +870,15 @@ sub ProcessEnvVar
         $replaceVarValue = ProcessEnvVar( $replaceVarName );
       }
       
+      if ( defined $originalVarName )
+      {
+        $varValue =~ s/\%\Q$originalVarName\E\%/\%$replaceVarName\%/g;
+        $replaceVarValue =~ s/\Q$fixupSource\E/$fixupTarget/g;
+      }
+
+      #print( " ProcessEnvVar (loop pre): $varName = $varValue\n" );
       $varValue =~ s/\%$replaceVarName\%/$replaceVarValue/g;
+      #print( " ProcessEnvVar (loop post): $varName = $varValue\n" );
     }
    
     # Post processing by environment variable type
@@ -880,6 +890,7 @@ sub ProcessEnvVar
     delete( $g_ProcessingEnvVars{ $varName } );
   }
   
+  #print( " ProcessEnvVar (post): $varName = $varValue\n" );
   return $varValue;
 }
 
@@ -888,12 +899,12 @@ sub ProcessEnvVar
 ##
 sub ProcessNewEnv
 {
-
   #for my $key ( sort keys %g_NewEnv ) { print "$key=$g_NewEnv{$key}\n"; }die; 
   foreach my $varName ( keys( %g_NewEnv ) )
   {
     if ( defined $g_NewEnv{ $varName } && !exists( $g_SkipProcessingVariables{ $varName } ) )
     {
+      #print( "ProcessNewEnv: $varName...\n" );
       $g_NewEnv{ $varName } = ProcessEnvVar( $varName );
     }
   }
@@ -910,7 +921,7 @@ sub PrintErrorAndExit
   print STDERR ( "\nERROR: " . $printStr . "\n\n" );
   
   # try to sleep so they can see the message
-  sleep( 3 );
+  sleep( 10 );
   
   if ( !defined $exitValue )
   { 
@@ -918,7 +929,6 @@ sub PrintErrorAndExit
   }
   exit( $exitValue );
 }
-
 
 ################################################################################
 ## Auto update
