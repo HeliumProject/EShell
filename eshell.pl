@@ -117,7 +117,7 @@ my %g_EShellOptions =
     'executeCommand'  => 0,
     'runCommand'      => 0,
     'command'         => "",
-    'settingsFile'    => undef,
+    'settingsFile'    => "eshell.xml",
     'shell'           => undef,
     'verbose'         => 0,
     'output'          => 0,
@@ -226,7 +226,7 @@ sub main
     exit 0;
   }
 
-  print "Insomniac Games EShell [Version " . VERSION . "]\n\n";
+  print "EShell [Version " . VERSION . "]\n\n";
 
 
   #
@@ -398,7 +398,6 @@ sub SetupNewEnv
 
     if ( length( $g_NewEnv{ ESHELL_ENV_BACKUP } ) > 8192 )
     {
-      print STDERR ( "WARNING: Could not back up original environment due to size limitations.\n\n" );
       $g_NewEnv{ ESHELL_ENV_BACKUP } = undef;
     }
   }

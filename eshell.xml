@@ -1,0 +1,15 @@
+<EShell>
+
+	<EnvVar variableName="ESHELL_TEST_VAR" value="test value"/>
+	<EnvVar variableName="ESHELL_TEST_NESTED" value="%ESHELL_TEST_VAR% nested"/>
+
+	<Config name="parent">
+		<EnvVar variableName="ESHELL_TEST_PARENT_VAR" value="parent value"/>
+	</Config>
+
+	<Config name="child" parent="parent">
+		<EnvVar variableName="ESHELL_TEST_CHILD_VAR" value="child value"/>
+		<EnvVar variableName="ESHELL_TEST_PARENT_VAR" value="child override"/>
+	</Config>
+
+</EShell>
