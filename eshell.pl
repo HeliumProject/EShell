@@ -115,6 +115,7 @@ my %g_EShellOptions =
     'config'          => undef,
     'executeCommand'  => 0,
     'runCommand'      => 0,
+    'hideConsole'     => 0,
     'command'         => "",
     'settingsFile'    => File::Spec->catfile( dirname($0), "eshell.xml" ),
     'shell'           => undef,
@@ -226,7 +227,10 @@ sub main
   #
   if( $g_EShellOptions{'runCommand'} )
   {
-    HideConsole();
+    if( $g_EShellOptions{'hideConsole'} )
+    {
+      HideConsole();
+    }
     exec( $g_EShellOptions{ 'command' } );
   }
   elsif( $g_EShellOptions{'executeCommand'} )
@@ -410,6 +414,7 @@ sub ParseCommandline
     "config=s"        => \$g_EShellOptions{ 'config' },
     "exec=s"          => \$g_EShellOptions{ 'executeCommand' },
     "run=s"           => \$g_EShellOptions{ 'runCommand' },
+    "hideConsole=s"   => \$g_EShellOptions{ 'hideConsole' },
     "shell=s"         => \$g_EShellOptions{ 'shell' },
     "stderr2stdout"   => sub { close(STDERR); open(STDERR, ">&STDOUT"); }, # useful for catching some things
     "h"               => \$getHelp,
