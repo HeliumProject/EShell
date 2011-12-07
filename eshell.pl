@@ -264,21 +264,7 @@ sub main
 
     if ( $foundShell )
     {
-      my $titleString = undef;
-
-      if ( defined( $ENV{ ESHELL_TITLE } ) )
-      {
-        $titleString = ProcessValue( $ENV{ ESHELL_TITLE } );
-      }
-        
-      if ( defined( $titleString ) )
-      {
-        require Win32::Console;
-        Win32::Console::Title( $titleString );
-      }
-      
       $command = qq{"$command"}; # avoid problems with spaces
-
       exec( $command, @ARGV );
     }
 
