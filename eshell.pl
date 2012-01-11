@@ -813,13 +813,13 @@ sub ProcessEnvVar
       }
       elsif ( !defined $g_NewEnv{ $replaceVarName } && !defined $g_BackupEnv{ $replaceVarName } )
       {
-        PrintErrorAndExit( "Environment variable \"$varName\" references an undefined environment variable \"$replaceVarName\".", 1 );
+        print STDERR ( "WARNING: Environment variable \"$varName\" references an undefined environment variable \"$replaceVarName\".", 1 );
       }
       else
       {
         $replaceVarValue = ProcessEnvVar( $replaceVarName );
       }
-      
+
       if ( defined $originalVarName )
       {
         $varValue =~ s/\%\Q$originalVarName\E\%/\%$replaceVarName\%/g;
