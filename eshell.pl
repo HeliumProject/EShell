@@ -8,7 +8,7 @@ use XML::Simple;
 use Storable qw( freeze thaw );
 use MIME::Base64;
 
-use constant VERSION => '2.2.8';
+use constant VERSION => '2.3.0';
 
 =pod
 
@@ -645,7 +645,7 @@ sub ParseEShell
 ## Parse an EnvVar element; these will be used to create the local environment.
 ##
 ## Example:
-##  <EnvVar variableName="IG_TOOLS_SYMBOLS_STORE" value="\\locutus\toolshed\symbols" type="path" override="0" />
+##  <EnvVar variableName="IG_TOOLS_SYMBOLS_STORE" value="\\locutus\toolshed\symbols" type="path" override="0" if="ANOTHER_VAR" />
 ##
 sub ParseEnvVars
 {  
@@ -660,14 +660,53 @@ sub ParseEnvVars
       next;
     }
   
+    if ( exists( $envVar->{ if } ) )
+    {
+      my $ifStatement = $envVar->{ if };
+      if ( $ifStatement =~ /(.*?)([!=]+)(.*)/ )
+      {
+        my $var = $1;
+        my $operator = $2;
+        my $value = $3;
+
+        if ( $operator eq "=" || $operator eq "==" )
+        {
+          if ( !exists( $g_BackupEnv{ $var } ) )
+          {
+            next;
+          }
+
+          if ( $g_BackupEnv{ $var } ne $value )
+          {
+            next;
+          }
+        }
+        elsif ( $operator eq "!=" )
+        {
+          if ( exists( $g_BackupEnv{ $var } ) && $g_BackupEnv{ $var } eq $value )
+          {
+            next;
+          }
+        }
+        else
+        {
+          PrintErrorAndExit( "Unable to interpret if statement '$ifStatement', unknown operator '$operator'", 1 );                
+        }
+      }
+      else
+      {
+        PrintErrorAndExit( "Unable to interpret if statement '$ifStatement'", 1 );       
+      }
+    }
+
     # if they care about override and they've said 'don't override my existing variable" *and*... 
     # that variable exists in the g_BackupEnv, use that value and continue
-    if ( ( exists( $envVar->{ override } ) && $envVar->{ override } == 0 )
-      && ( defined $g_BackupEnv{ $envVar->{ variableName } } ) )
+    if ( ( exists( $envVar->{ override } ) && $envVar->{ override } == 0 ) && ( defined $g_BackupEnv{ $envVar->{ variableName } } ) )
     {
       $g_NewEnv{ $envVar->{ variableName } } = $g_BackupEnv{ $envVar->{ variableName } };
       next;
     }
+
     if ( exists( $g_AllowOverrideEnvVars{ $envVar->{ variableName } } ) )
     {
       # override="1" was passed
@@ -703,8 +742,7 @@ sub ParseEnvVars
     
     $g_NewEnv{ $envVar->{ variableName } } = $value;
     
-    if ( exists( $envVar->{ allow_override } ) 
-      and ( ( $envVar->{ allow_override } == 1 ) or ( $envVar->{ allow_override } eq "1" ) ) )
+    if ( exists( $envVar->{ allow_override } ) and ( ( $envVar->{ allow_override } == 1 ) or ( $envVar->{ allow_override } eq "1" ) ) )
     {
       $g_AllowOverrideEnvVars{ $envVar->{ variableName } } = 1;
     }
