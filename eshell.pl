@@ -688,14 +688,10 @@ sub ParseEnvVars
             next;
           }
         }
-        else
-        {
-          PrintErrorAndExit( "Unable to interpret if statement '$ifStatement', unknown operator '$operator'", 1 );                
-        }
       }
-      else
+      elsif ( !exists( $g_BackupEnv{ $ifStatement } ) )
       {
-        PrintErrorAndExit( "Unable to interpret if statement '$ifStatement'", 1 );       
+		next;
       }
     }
 
