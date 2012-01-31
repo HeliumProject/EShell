@@ -8,7 +8,7 @@ use XML::Simple;
 use Storable qw( freeze thaw );
 use MIME::Base64;
 
-use constant VERSION => '2.3.0';
+use constant VERSION => '2.4.0';
 
 =pod
 
