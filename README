@@ -1,8 +1,19 @@
+Helium Project era:
+
+2.4.0
+* Add env var existence conditional support to 'if' (gorlak)
+
+2.3.0
+* Add env var value conditional support via 'if' xml attribute (gorlak)
+  example: if="VAR=VALUE" or if="VAR!=VALUE"
+
 2.2.8
 * Remove HideConsole, it only existed as a hack to hide perl.exe and its terminal window when
   running applications who's exe file has spaces in the path (requiring quotes), which in turn
   causes perl's exec to wait for exit (leaving the console window open until the target program
   terminates).  Perfer system( 1, "..." ) resolves this
+
+Insomniac era:
 
 2.2.7
 * Making Eshell more flexible and allowing optional includes (rmark)
