@@ -8,7 +8,7 @@ use XML::Simple;
 use Storable qw( freeze thaw );
 use MIME::Base64;
 
-use constant VERSION => '2.4.0';
+use constant VERSION => '2.5.0';
 
 =pod
 
@@ -689,9 +689,9 @@ sub ParseEnvVars
           }
         }
       }
-      elsif ( !exists( $g_BackupEnv{ $ifStatement } ) )
+      elsif ( !exists( $g_BackupEnv{ $ifStatement } ) && !-e( ProcessValue( $ifStatement ) ) )
       {
-		next;
+  		next;
       }
     }
 

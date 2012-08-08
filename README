@@ -1,5 +1,8 @@
 Helium Project era:
 
+2.5.0
+* Add file existence check to "if" conditional directives (gorlak)
+
 2.4.0
 * Add env var existence conditional support to 'if' (gorlak)
 
