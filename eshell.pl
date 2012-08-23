@@ -1,5 +1,6 @@
 use strict;
 
+use Cwd;
 use File::Spec;
 use File::Basename;
 use Getopt::Long 2.36;
@@ -8,7 +9,7 @@ use XML::Simple;
 use Storable qw( freeze thaw );
 use MIME::Base64;
 
-use constant VERSION => '2.5.0';
+use constant VERSION => '2.6.0';
 
 =pod
 
@@ -115,9 +116,9 @@ my %g_EShellOptions =
     'config'          => undef,
     'executeCommand'  => 0,
     'runCommand'      => 0,
-    'hideConsole'     => 0,
     'command'         => "",
     'settingsFile'    => File::Spec->catfile( dirname($0), "eshell.xml" ),
+    'workingDir'      => undef,
     'shell'           => undef,
     'verbose'         => 0,
     'output'          => 0,
@@ -223,15 +224,36 @@ sub main
   print "EShell [Version " . VERSION . "]\n\n";
 
   #
+  # Stash cwd if we are setting a workingDir
+  #
+  my $workingDir = undef;
+  if( $g_EShellOptions{'workingDir'} )
+  {
+    $workingDir = cwd();
+    chdir( $g_EShellOptions{'workingDir'} );
+  }
+
+  #
   # Run/Exec the command or start the command prompt
   #
   if( $g_EShellOptions{'runCommand'} )
   {
     system( 1, $g_EShellOptions{ 'command' } );
+
+    if( defined( $workingDir ) )
+    {
+      chdir( $workingDir );
+    }
   }
   elsif( $g_EShellOptions{'executeCommand'} )
   {
     system( $g_EShellOptions{ 'command' } );
+
+    if( defined( $workingDir ) )
+    {
+      chdir( $workingDir );
+    }
+
     my $return_value = $? >> 8;
     return $return_value;
   }
@@ -270,7 +292,18 @@ sub main
 
     # if we got here, we couldn't find a shell, that's a problem...
     print STDERR "\nCould not locate a shell to execute! Attempted to use '" . $g_EShellOptions{'shell'} . "'\n\n";
+
+    if( defined( $workingDir ) )
+    {
+      chdir( $workingDir );
+    }
+
     return 1;
+  }
+
+  if( defined( $workingDir ) )
+  {
+    chdir( $workingDir );
   }
 
   return 0;
@@ -293,6 +326,7 @@ Usage:
             [-h|-help|-usage]
 
   -settingsFile    -- specify a settings file
+  -workingDir      -- specify a working directory (for run/exec)
   -config          -- specify the configuration to use as defined in
                        the settings file
   -shell           -- specify the shell to use (cmd.exe, 4nt.exe, etc.)
@@ -356,10 +390,10 @@ sub ParseCommandline
   (
     "set=s"           => \&SetEnvironmentVarFromArgument,
     "settingsFile=s"  => \$g_EShellOptions{ 'settingsFile' },
+    "workingDir=s"    => \$g_EShellOptions{ 'workingDir' },
     "config=s"        => \$g_EShellOptions{ 'config' },
     "exec=s"          => \$g_EShellOptions{ 'executeCommand' },
     "run=s"           => \$g_EShellOptions{ 'runCommand' },
-    "hideConsole=s"   => \$g_EShellOptions{ 'hideConsole' },
     "shell=s"         => \$g_EShellOptions{ 'shell' },
     "stderr2stdout"   => sub { close(STDERR); open(STDERR, ">&STDOUT"); }, # useful for catching some things
     "h"               => \$getHelp,
@@ -387,8 +421,7 @@ sub ParseCommandline
   }
   
   $g_EShellOptions{ 'command' } = $g_EShellOptions{ 'runCommand' } ? $g_EShellOptions{ 'runCommand' } : $g_EShellOptions{ 'executeCommand' };
-  
-  
+
   # set our settings file variable so things can know where they were read from
   $g_NewEnv{ ESHELL_SETTINGS_FILE } = $g_EShellOptions{ 'settingsFile' };
   
@@ -1031,12 +1064,12 @@ sub AutomaticUpdate
 
 =head1 AUTHOR
 
-EShell is developed primarily at Insomniac Games, Inc. with contributors:
+EShell was originally developed at Insomniac Games, Inc.
 
-Andrew Burke E<lt>aburke@insomniacgames.comE<gt>
-             E<lt>aburke@bitflood.orgE<gt>
-             
-Rachel Mark E<lt>rachel@insomniacgames.comE<gt>
+Contributors:
+Andrew Burke E<lt>aburke@bitflood.orgE<gt>
+Geoff Evans E<lt>geoff@flummoxed.orgE<gt>
+Rachel Mark E<lt>kramdar@gmail.comE<gt>
 
 =head1 COPYRIGHT
 
@@ -1044,4 +1077,3 @@ This script is free software.  You can redistribute it and/or modify it
 under the same terms as Perl itself.
 
 =cut
-

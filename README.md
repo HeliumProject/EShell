@@ -1,5 +1,8 @@
 Helium Project era:
 
+2.6.0
+* Added -workingDir to set the working directory (gorlak)
+
 2.5.0
 * Add file existence check to "if" conditional directives (gorlak)
 
