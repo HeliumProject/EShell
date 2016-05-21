@@ -1,5 +1,8 @@
 Helium Project era:
 
+2.7.0
+* Added ESHELL_SETTINGS_DIR for relpathing vars from the settings files location (gorlak)
+
 2.6.0
 * Added -workingDir to set the working directory (gorlak)
 

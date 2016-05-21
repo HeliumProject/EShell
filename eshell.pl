@@ -9,7 +9,7 @@ use XML::Simple;
 use Storable qw( freeze thaw );
 use MIME::Base64;
 
-use constant VERSION => '2.6.0';
+use constant VERSION => '2.7.0';
 
 =pod
 
@@ -424,6 +424,7 @@ sub ParseCommandline
 
   # set our settings file variable so things can know where they were read from
   $g_NewEnv{ ESHELL_SETTINGS_FILE } = $g_EShellOptions{ 'settingsFile' };
+  $g_NewEnv{ ESHELL_SETTINGS_DIR } = dirname($g_EShellOptions{ 'settingsFile' });
   
   return 1;
 }
